@@ -1,4 +1,4 @@
-# Copyright 2021 the Autoware Foundation
+# Copyright 2021 University of Buffalo
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -11,34 +11,40 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-#
-# Co-developed by Tier IV, Inc. and Apex.AI, Inc.
 
 """
-Example launch file for a new package.
 
-Note: Does not work in ROS2 dashing!
 """
 
 import launch
-from launch_ros.actions import ComposableNodeContainer
-from launch_ros.descriptions import ComposableNode
+import os
 
+from ament_index_python import get_package_share_directory
+from launch.actions import IncludeLaunchDescription
+from launch.launch_description_sources import PythonLaunchDescriptionSource
+from launch_xml.launch_description_sources import XMLLaunchDescriptionSource
+
+
+def get_share_file_path(package_name, file_name):
+    return os.path.join(get_package_share_directory(package_name), file_name)
 
 def generate_launch_description():
-    """Generate launch description with a single component."""
-    container = ComposableNodeContainer(
-            name='ub_car_launch_container',
-            namespace='',
-            package='rclcpp_components',
-            executable='component_container',
-            composable_node_descriptions=[
-                ComposableNode(
-                    package='ub_car_launch',
-                    plugin='autoware::ub_car_launch::UbCarLaunchNode',
-                    name='ub_car_launch_node'),
-            ],
-            output='screen',
+    """Launch stuff for UB car"""
+
+    dataspeed_dbw = IncludeLaunchDescription(
+        XMLLaunchDescriptionSource(
+            get_share_file_path('dbw_ford_can', 'launch/dbw.launch.xml')
+        ),
+        launch_arguments={
+            "ulc": "false"
+        }.items()
     )
 
-    return launch.LaunchDescription([container])
+    dataspeed_interface = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(
+            get_share_file_path('dataspeed_ford_interface', 'launch/dataspeed_ford_interface.launch.py')
+        ),
+        launch_arguments={}.items()
+    )
+
+    return launch.LaunchDescription([dataspeed_dbw, dataspeed_interface])

@@ -11,6 +11,7 @@
   <buildtool_depend>autoware_auto_cmake</buildtool_depend>
 
   <exec_depend>dataspeed_ford_interface</exec_depend>
+  <exec_depend>dbw_ford_can</exec_depend>
 
   <test_depend>ament_lint_auto</test_depend>
   <test_depend>ament_lint_common</test_depend>
